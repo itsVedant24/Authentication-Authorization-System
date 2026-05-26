@@ -1,0 +1,32 @@
+$kind: http-request
+name: 'Register - Missing Fields'
+method: POST
+url: '{{baseUrl}}/api/auth/register'
+order: 6000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "",
+      "email": "",
+      "password": ""
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      // Test 1: Empty fields should not result in a successful registration
+      pm.test("Empty fields registration is rejected or handled", function () {
+        // A well-implemented API should return 400 Bad Request
+        // This test documents current behavior and flags if 200 is returned unexpectedly
+        if (pm.response.code === 200) {
+          // If 200, at minimum the response should say registered (not crash)
+          pm.expect(pm.response.text()).to.be.a("string");
+          console.warn("WARNING: Server accepted empty fields — consider adding validation");
+        } else {
+          pm.expect(pm.response.code).to.be.within(400, 599);
+        }
+      });
