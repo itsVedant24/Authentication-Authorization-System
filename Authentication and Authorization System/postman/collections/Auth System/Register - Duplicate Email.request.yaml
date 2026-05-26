@@ -1,0 +1,32 @@
+$kind: http-request
+name: 'Register - Duplicate Email'
+method: POST
+url: '{{baseUrl}}/api/auth/register'
+order: 5000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Test User",
+      "email": "testuser@example.com",
+      "password": "Test@1234"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      // Test 1: Registering with an already-used email should fail
+      pm.test("Duplicate registration is rejected (not 200)", function () {
+        // Ideally the server returns 409 Conflict or 400 Bad Request
+        // Currently the app may return 500 due to DB unique constraint violation
+        pm.expect(pm.response.code).to.not.equal(200);
+      });
+
+      // Test 2: Response should indicate an error
+      pm.test("Response indicates duplicate email error", function () {
+        const isErrorStatus = pm.response.code >= 400 && pm.response.code < 600;
+        pm.expect(isErrorStatus).to.be.true;
+      });

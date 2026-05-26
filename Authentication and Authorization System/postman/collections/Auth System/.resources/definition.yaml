@@ -1,0 +1,3 @@
+$kind: collection
+name: Auth System
+description: Tests for the Authentication and Authorization System API (Spring Boot). Covers register and login endpoints with happy path and edge cases.

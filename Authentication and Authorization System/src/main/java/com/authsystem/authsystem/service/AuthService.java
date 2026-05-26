@@ -3,6 +3,8 @@ package com.authsystem.authsystem.service;
 import com.authsystem.authsystem.dto.LoginRequest;
 import com.authsystem.authsystem.dto.RegisterRequest;
 import com.authsystem.authsystem.entity.User;
+import com.authsystem.authsystem.exception.DuplicateEmailException;
+import com.authsystem.authsystem.exception.InvalidCredentialsException;
 import com.authsystem.authsystem.jwt.JwtService;
 import com.authsystem.authsystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,10 @@ public class AuthService {
     private final JwtService jwtService;
 
     public String register(RegisterRequest request) {
+
+        if (repository.findByEmail(request.getEmail()).isPresent()) {
+            throw new DuplicateEmailException("Email is already registered: " + request.getEmail());
+        }
 
         User user = new User();
 
@@ -39,13 +45,13 @@ public class AuthService {
 
         User user = repository
                 .findByEmail(request.getEmail())
-                .orElseThrow();
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
         if (!encoder.matches(
                 request.getPassword(),
                 user.getPassword())) {
 
-            throw new RuntimeException("Invalid Password");
+            throw new InvalidCredentialsException("Invalid email or password");
         }
 
         return jwtService.generateToken(

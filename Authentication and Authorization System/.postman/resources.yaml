@@ -1,0 +1,7 @@
+# Use this workspace to collaborate
+workspace:
+  id: 1d843f6a-609b-4d26-89d3-3bbe67a43642
+
+localResources:
+  docs:
+    - ../HELP.md
